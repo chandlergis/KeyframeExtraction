@@ -3,7 +3,6 @@ Pythonでキーフレーム抽出
 
 ## アルゴリズム
 - ヒストグラム類似度 - [histgram.py](./src/histogram.py)
-- block based histogram
 - k-means - [kmeans.py](./src/kmeans.py)
 
 ## 環境
