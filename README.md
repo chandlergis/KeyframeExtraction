@@ -4,6 +4,7 @@ Pythonでキーフレーム抽出
 ## アルゴリズム
 - ヒストグラム類似度 - [histgram.py](./src/histogram.py)
 - k-means - [kmeans.py](./src/kmeans.py)
+- x-means - [xmeans.py](./src/xmeans.py)
 
 ## 環境
 ``` bash
