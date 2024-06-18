@@ -71,8 +71,8 @@ def main(args):
     # 保存图片
     cv2.imwrite('result.jpg', resultImage)
 
-    cv2.imshow("Frames", resultImage)
-    cv2.waitKey()
+    # cv2.imshow("Frames", resultImage)
+    # cv2.waitKey()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'k-means')
