@@ -70,8 +70,6 @@ def main(args):
     cap.release()
 
     resultImage = bundleImage(keyframes, height, width, numCols = 7)
-    cv2.imshow("Frames", resultImage)
-    cv2.waitKey()
 
 
 if __name__ == '__main__':
