@@ -1,6 +1,8 @@
 import cv2
 import argparse
 import numpy as np
+import os
+import pathlib
 
 from utils import bundleImage
 from pyclustering.cluster.xmeans import xmeans
@@ -8,6 +10,9 @@ from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 
 def main(args):
     cap = cv2.VideoCapture(args.filepath)
+
+    # Get the video filename (without extension)
+    video_filename = pathlib.Path(args.filepath).stem
 
     frameWidth = int(cap.get(3))
     frameHeight = int(cap.get(4))
@@ -60,10 +65,15 @@ def main(args):
     closest.sort()
 
     keyframes = []
-    for keyframeIdx in closest:
+    output_dir = "./keyframes/"
+    os.makedirs(output_dir, exist_ok=True)
+    for idx, keyframeIdx in enumerate(closest):
         cap.set(cv2.CAP_PROP_POS_FRAMES, keyframeIdx)
         _, keyframe = cap.read()
-        keyframes.append(cv2.resize(keyframe, (newWidth, newHeight), interpolation = cv2.INTER_LINEAR))
+        keyframe = cv2.resize(keyframe, (newWidth, newHeight), interpolation = cv2.INTER_LINEAR)
+        keyframes.append(keyframe)
+        # Save each keyframe with the video filename and sequence number
+        cv2.imwrite(os.path.join(output_dir, f"{video_filename}_keyframe_{idx}.jpg"), keyframe)
     cap.release()
 
     return keyframes
