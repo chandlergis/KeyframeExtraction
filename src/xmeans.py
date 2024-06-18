@@ -1,7 +1,7 @@
 import cv2
 import argparse
 import numpy as np
-
+import matplotlib.pyplot as plt
 from utils import bundleImage
 from pyclustering.cluster.xmeans import xmeans
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
@@ -73,23 +73,27 @@ def main(args):
             closest[labelNum] = frameNum
     closest.sort()
 
-    # # キーフレームの画像情報を取得
+    # キーフレームの画像情報を取得
     keyframes = []
     for keyframeIdx in closest:
         cap.set(cv2.CAP_PROP_POS_FRAMES, keyframeIdx)
         _, keyframe = cap.read()
-        keyframes.append(cv2.resize(keyframe, (newWidth, newHeight), interpolation = cv2.INTER_LINEAR))
+        keyframes.append(cv2.resize(keyframe, (newWidth, newHeight), interpolation=cv2.INTER_LINEAR))
     cap.release()
 
-    # # 描画
-    resultImage = bundleImage(keyframes, newHeight, newWidth, numCols = 7)
-    cv2.imshow("Frames", resultImage)
-    cv2.waitKey()
+    # 描画
+    resultImage = bundleImage(keyframes, newHeight, newWidth, numCols=7)
+
+    # 保存结果图像
+    plt.imshow(cv2.cvtColor(resultImage, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    plt.savefig("result.png", bbox_inches='tight', pad_inches=0)
+    plt.close()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = 'k-means')
-    parser.add_argument('--filepath', default = './assets/sample.mp4', type = str, help='ファイルパス名')
-    parser.add_argument('--k', default = 1, type = int, help='クラスタ数初期値')
-    parser.add_argument('--tolerance', default = 1e-4, type = float, help='収束と判定するためのtolerance(許容誤差)')   # 0.025
+    parser = argparse.ArgumentParser(description='k-means')
+    parser.add_argument('--filepath', default='./assets/sample.mp4', type=str, help='ファイルパス名')
+    parser.add_argument('--k', default=1, type=int, help='クラスタ数初期値')
+    parser.add_argument('--tolerance', default=1e-4, type=float, help='収束と判定するためのtolerance(許容誤差)')   # 0.025
     args = parser.parse_args()
     main(args)
