@@ -70,7 +70,7 @@ def main(args):
     for idx, keyframeIdx in enumerate(closest):
         cap.set(cv2.CAP_PROP_POS_FRAMES, keyframeIdx)
         _, keyframe = cap.read()
-        keyframe = cv2.resize(keyframe, (newWidth, newHeight), interpolation = cv2.INTER_LINEAR)
+        #keyframe = cv2.resize(keyframe, (newWidth, newHeight), interpolation = cv2.INTER_LINEAR)
         keyframes.append(keyframe)
         # Save each keyframe with the video filename and sequence number
         cv2.imwrite(os.path.join(output_dir, f"{video_filename}_keyframe_{idx}.jpg"), keyframe)
