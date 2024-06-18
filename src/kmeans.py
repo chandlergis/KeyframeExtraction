@@ -63,9 +63,13 @@ def main(args):
 
         # 保存关键帧
         cv2.imwrite(f'keyframes/keyframe_{i}.jpg', keyframe)
+    
+    # 获取第一帧图像的高度和宽度
+    height, width, _ = keyframes[0].shape
+
     cap.release()
 
-    resultImage = bundleImage(keyframes, numCols = 7)
+    resultImage = bundleImage(keyframes, height, width, numCols = 7)
     cv2.imshow("Frames", resultImage)
     cv2.waitKey()
 
