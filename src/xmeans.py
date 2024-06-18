@@ -1,7 +1,7 @@
 import cv2
 import argparse
 import numpy as np
-import matplotlib.pyplot as plt
+
 from utils import bundleImage
 from pyclustering.cluster.xmeans import xmeans
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
@@ -15,29 +15,31 @@ def main(args):
     newWidth = int(frameWidth / 5)
     framesAveBGR = []
 
-    frame_count = 0
     while True:
         ret, curFrame = cap.read()
 
         if not ret:
             break
-
-        frame_count += 1
+        
         aveBGR = 0
         for channelNum in range(3):
             hist = cv2.calcHist([curFrame], channels=[channelNum], mask=None, histSize=[256], ranges=[0, 256])
             hist = cv2.normalize(hist, hist)
-            colorSum = sum(value[0] for value in hist) / 256
+            colorSum = 0
+            for value in hist:
+                colorSum += value[0]
+            colorSum /= 256
             aveBGR += colorSum
 
         aveBGR /= 3
         framesAveBGR.append(aveBGR * 100)
-
+        
     cv2.destroyAllWindows()
 
-    framesAveBGR = np.array(framesAveBGR).reshape(-1, 1)
+    framesAveBGR = np.array(framesAveBGR)
+    framesAveBGR = framesAveBGR.reshape(-1, 1)
     xm_c = kmeans_plusplus_initializer(framesAveBGR, args.k).initialize()
-    xm_i = xmeans(data=framesAveBGR, initial_centers=xm_c, kmax=20, tolerance=args.tolerance, core=True)
+    xm_i = xmeans(data=framesAveBGR , initial_centers=xm_c, kmax=20, tolerance=args.tolerance, core=True)
     xm_i.process()
 
     labels = np.ones(framesAveBGR.shape[0])
@@ -60,28 +62,22 @@ def main(args):
     keyframes = []
     for keyframeIdx in closest:
         cap.set(cv2.CAP_PROP_POS_FRAMES, keyframeIdx)
-        ret, keyframe = cap.read()
-        if ret:
-            resized_keyframe = cv2.resize(keyframe, (newWidth, newHeight), interpolation=cv2.INTER_LINEAR)
-            keyframes.append(resized_keyframe)
-        else:
-            print(f"Failed to read frame at index {keyframeIdx}")
+        _, keyframe = cap.read()
+        keyframes.append(cv2.resize(keyframe, (newWidth, newHeight), interpolation = cv2.INTER_LINEAR))
     cap.release()
 
-    if keyframes:
-        resultImage = bundleImage(keyframes, newHeight, newWidth, numCols=7)
-        plt.imshow(cv2.cvtColor(resultImage, cv2.COLOR_BGR2RGB))
-        plt.axis('off')
-        plt.savefig("result.png", bbox_inches='tight', pad_inches=0)
-        plt.close()
-        print("Result image saved as result.png")
-    else:
-        print("No keyframes were extracted.")
+    resultImage = bundleImage(keyframes, newHeight, newWidth, numCols = 7)
+    
+    # 保存图片
+    cv2.imwrite('result.jpg', resultImage)
+
+    cv2.imshow("Frames", resultImage)
+    cv2.waitKey()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='k-means')
-    parser.add_argument('--filepath', default='./assets/sample.mp4', type=str, help='ファイルパス名')
-    parser.add_argument('--k', default=1, type=int, help='クラスタ数初期値')
-    parser.add_argument('--tolerance', default=1e-4, type=float, help='収束と判定するためのtolerance(許容誤差)')
+    parser = argparse.ArgumentParser(description = 'k-means')
+    parser.add_argument('--filepath', default = './assets/sample.mp4', type = str, help='ファイルパス名')
+    parser.add_argument('--k', default = 1, type = int, help='クラスタ数初期値')
+    parser.add_argument('--tolerance', default = 1e-4, type = float, help='収束と判定するためのtolerance(許容誤差)')
     args = parser.parse_args()
     main(args)
